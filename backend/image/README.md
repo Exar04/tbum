@@ -1,0 +1,1 @@
+This handles image compression and decompression, image storage and sending back to users
