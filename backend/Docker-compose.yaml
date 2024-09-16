@@ -1,0 +1,103 @@
+version: '3.9'
+services:
+  # postgres-auth:
+  #   image: postgres:15.3-alpine 
+  #   container_name: auth-db
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: auth-db 
+  #     POSTGRES_PASSWORD: auth-db 
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #   #   - postgres-auth-data:/var/lib/postgres/data
+  #     - ./initdb:/docker-entrypoint-initdb.d/
+
+
+  # auth-server:
+  #   build: ./auth
+  #   container_name: auth-server
+  #   ports: 
+  #     - 9000:9000
+  #   depends_on:
+  #     - postgres-auth
+  #   environment:
+  #     DB_HOST: docker.for.mac.host.internal
+    #   DB_PORT: 5432
+    #   DB_USER: auth-db 
+    #   DB_PASSWORD: auth-db 
+    #   DB_NAME: auth-db 
+
+  # http-chat-server:
+  #   build: ./chat/httpServer
+  #   container_name: http-chat-server
+  #   ports:
+  #     - 9050:9050
+  #   depends_on:
+  #     - redis-group-calalogue
+  #     - postgres-chat
+
+  postgres-chat:
+    image: postgres:15.3-alpine 
+    container_name: chat-db
+    restart: always
+    environment:
+      POSTGRES_USER: chat-db
+      POSTGRES_PASSWORD: chat-db
+    ports:
+      - 5442:5432
+    volumes:
+    #   - postgres-auth-data:/var/lib/postgres/data
+      - ./initdb:/docker-entrypoint-initdb.d/
+  
+  redis-ws:
+    image: redis:6.2-alpine
+    container_name: redis-ws 
+    ports:
+      - 6379:6379
+
+  redis-group-catalogue:
+    image: redis:6.2-alpine
+    container_name: redis-group-catalogue
+    ports:
+      - 6389:6379
+
+  
+  zookeeper:
+    image: zookeeper
+    container_name: zookeeper-chat 
+    ports:
+      - 2181:2181
+  
+  kafka:
+    image: confluentinc/cp-kafka
+    container_name: kafka-chat
+    ports:
+      - 9092:9092
+    environment:
+      # - KAFKA_ZOOKEEPER_CONNECT=192.168.0.101:2181
+      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://192.168.0.101:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+
+      - KAFKA_ZOOKEEPER_CONNECT=docker.for.mac.host.internal:2181
+      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://docker.for.mac.host.internal:9092
+
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    command: >
+      sh -c "
+      /etc/confluent/docker/run &
+      sleep 5;
+      kafka-topics --create --topic msg --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1;
+      kafka-topics --create --topic groups --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1;
+      exec tail -f /dev/null"
+    depends_on:
+      - zookeeper
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+# volumes:
+#   postgres-auth-data:
