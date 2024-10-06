@@ -5,18 +5,21 @@ import './index.css';
 import { router } from './routes';
 import { RouterProvider } from 'react-router-dom';
 import {AuthProvider} from './context/authContext'
-import { ChatProvider } from './context/chatContext';
+import WebSocketProvider, { useWebSocketSender } from './context/webSocketContext';
 
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 )
+
 root.render(
   <React.StrictMode>
     {/* <AuthProvider> */}
-      {/* <ChatProvider> */}
+    <WebSocketProvider>
+    <AuthProvider>
         <RouterProvider router={router}/>
-      {/* </ChatProvider> */}
+    </AuthProvider>
+    </WebSocketProvider>
     {/* </AuthProvider> */}
   </React.StrictMode>
 )

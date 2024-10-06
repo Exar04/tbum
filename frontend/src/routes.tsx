@@ -10,6 +10,7 @@ import { Messages } from "./components/MessagesPage";
 import { EditProfile } from "./components/EditProfilePage";
 import { LoginPage } from "./pages/Login";
 import { SignupPage } from "./pages/Signup";
+import { useParams } from 'react-router-dom';
 
 
 interface PrivateRouteProps {
@@ -43,19 +44,24 @@ export const router = createBrowserRouter([
     path: "/",
     element: <PrivateRoute component={ChatPage} />,
     errorElement: <NotFound />,
-    children: [
-      {
-        path: "/profile/:profileId",
-        element: <Profile />,
-      },
-      {
-        path: "/messages/:chatId",
-        element: <Messages />,
-      },
-      {
-        path: "/editprofile",
-        element: <EditProfile />,
-      },
-    ],
+    // children: [
+    //   {
+    //     path: "/profile/:profileId",
+    //     element: <Profile />,
+    //   },
+    //   {
+    //     path: "/messages/:chatId",
+    //     element: <Messages />,
+    //   },
+    //   {
+    //     path: "/editprofile",
+    //     element: <EditProfile />,
+    //   },
+    // ],
   },
+  {
+    path: "/messages/:chatId",
+    element: <PrivateRoute component={ChatPage} />,
+    errorElement: <NotFound />,
+  }
 ]);
